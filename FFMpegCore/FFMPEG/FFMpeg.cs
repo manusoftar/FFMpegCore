@@ -470,9 +470,13 @@ namespace FFMpegCore.FFMPEG
             var successState = true;
 
             CreateProcess(this.ArgumentBuilder.BuildArguments(container), _ffmpegPath, true, rStandardError: true);
+            
 
             try
             {
+                InputArgument inputArgument = container.Find<InputArgument>();
+                VideoInfo infoOrigen = new VideoInfo(new FileInfo(inputArgument.Value[0]));
+                _totalTime = infoOrigen.Duration;
                 Process.Start();
                 Process.ErrorDataReceived += OutputData;
                 Process.BeginErrorReadLine();
@@ -521,17 +525,21 @@ namespace FFMpegCore.FFMPEG
             _errorOutput.AppendLine(e.Data);
 #if DEBUG
             Trace.WriteLine(e.Data);
-#endif
 
+#endif
+            Console.WriteLine("Salida : {0}",e.Data);
             if (OnProgress == null || !IsWorking) return;
 
             var r = new Regex(@"\w\w:\w\w:\w\w");
             var m = r.Match(e.Data);
 
+            Console.WriteLine("String parseada: {0}", m.Value);
+
             if (!e.Data.Contains("frame")) return;
             if (!m.Success) return;
 
             var t = TimeSpan.Parse(m.Value, CultureInfo.InvariantCulture);
+            Console.WriteLine("Tiempo procesado: {0}", t.TotalSeconds.ToString());
             var percentage = Math.Round(t.TotalSeconds / _totalTime.TotalSeconds * 100, 2);
             OnProgress(percentage);
         }

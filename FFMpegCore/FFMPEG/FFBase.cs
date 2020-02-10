@@ -56,6 +56,7 @@ namespace FFMpegCore.FFMPEG
                 throw new InvalidOperationException(
                     "The current FFMpeg process is busy with another operation. Create a new object for parallel executions.");
 
+            Console.WriteLine("Se va a llamar al proceso con los siguientes parámetros -> {0}", args);
             Process = new Process();
             IsKillFaulty = false;
             Process.StartInfo.FileName = processPath;
